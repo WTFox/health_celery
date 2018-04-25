@@ -153,9 +153,20 @@ necessary_queue_names = [
 ]
 for queue in necessary_queue_names:
     CELERY_TASK_QUEUES.append(
-        Queue(queue, Exchange(queue, type='direct'))
+        Queue(queue, Exchange(queue, routing_key=queue, type='direct'))
     )
 
 CELERY_TASK_DEFAULT_QUEUE = 'default'
 CELERY_TASK_DEFAULT_EXCHANGE = 'default'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+
+CELERY_TASK_ROUTES = {
+    'health_celery.reports.*': {
+        'queue': 'reports',
+        'routing_key': 'reports',
+    },
+    'health_celery.pathways.*': {
+        'queue': 'pathways',
+        'routing_key': 'pathways',
+    },
+}
