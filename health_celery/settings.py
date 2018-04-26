@@ -131,34 +131,40 @@ STATIC_URL = '/static/'
 
 # Celery
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_IMPORTS = [
     'health_celery.account.jobs',
     'health_celery.reports.jobs',
     'health_celery.pathways.jobs',
 ]
 
-
 # The non-AMQP backends like Redis or SQS don't support exchanges,
 # so they require the exchange to have the same name as the queue. 
 # Using this design ensures it will work for them as well.
+
+# Also, the "Queue" must already exist in SQS.
 CELERY_TASK_QUEUES = [
-    Queue('default', Exchange('default', type='direct')),
+    Queue('peach', Exchange('peach', type='direct')),
 ]
+
+CELERY_BROKER_URL = "sqs://"
+BROKER_TRANSPORT_OPTIONS = {
+    'region': 'us-east-1', 
+    'polling_interval': 60, 
+}
 
 # Setup a queue for our task lanes with the same config
-necessary_queue_names = [
-    'reports', 'blackbird', 'backoffice', 'caching', 'pathways',
-    'refresh', 'snapshots'
-]
-for queue in necessary_queue_names:
-    CELERY_TASK_QUEUES.append(
-        Queue(queue, Exchange(queue, routing_key=queue, type='direct'))
-    )
+# necessary_queue_names = [
+#     'reports', 'blackbird', 'backoffice', 'caching', 'pathways',
+#     'refresh', 'snapshots'
+# ]
+# for queue in necessary_queue_names:
+#     CELERY_TASK_QUEUES.append(
+#         Queue(queue, Exchange(queue, routing_key=queue, type='direct'))
+#     )
 
-CELERY_TASK_DEFAULT_QUEUE = 'default'
-CELERY_TASK_DEFAULT_EXCHANGE = 'default'
-CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+CELERY_TASK_DEFAULT_QUEUE = 'peach'
+CELERY_TASK_DEFAULT_EXCHANGE = 'peach'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'peach'
 
 CELERY_TASK_ROUTES = {
     'health_celery.reports.*': {

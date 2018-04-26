@@ -64,6 +64,12 @@ $ celery worker --app=health_celery --statedb=django --loglevel=INFO --queues=re
 
 If any tasks are queued in, say, the `pathways` queue, they will not be ran until a worker is started that will listen on that queue. At which point the backlogged items will start to process. This is exactly what I was able to do locally. I started Celery to only listen to queues `reports` and `default`. Starting jobs in these queues worked. Started jobs in `pathways` sent the job to redis but celery did not pick it up. After I restarted celery to listen on the `pathways` queue, the backlogged jobs started running. 
 
+## Celery Behavior with SQS
+
+- `boto3` will take care of resolving credentials
+- Queues need to be defined in SQS first
+- Flower doesn't play nice with SQS
+
 ## Extras Included
 
 - [Django Celery Results](https://github.com/celery/django-celery-results) - This extension enables you to store Celery task results using the Django ORM. It defines a single model (django_celery_results.models.TaskResult) used to store task results, and you can query this database table like any other Django model.
